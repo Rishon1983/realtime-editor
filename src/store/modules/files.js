@@ -1,8 +1,11 @@
+import Vue from 'vue';
 import axios from "axios";
 
 const state = {
 	fileNames: [],
-	fileTabs: []
+	fileTabs: [],
+	fileTabsMap: {},
+	selectedTab: ''
 };
 
 // getters are functions.
@@ -16,6 +19,18 @@ const actions = {
 		axios.post('http://localhost:80/api/v1/getFiles').then(res => {
 			commit('getFileNames', res.data);
 		})
+	},
+
+	openTabAction({commit}, name) {
+		commit('openTab', name);
+	},
+
+	selectTabAction({commit}, name) {
+		commit('selectTab', name);
+	},
+
+	closeTabAction({commit}, name) {
+		commit('closeTab', name);
 	},
 
 	settingsAction({commit}, data) {
@@ -40,6 +55,27 @@ const actions = {
 const mutations = {
 	getFileNames(state, res) {
 		state.fileNames = res;
+	},
+
+	openTab(state, name) {
+		if (state.fileTabsMap[name]) {
+			console.log(name);
+		} else {
+			state.fileTabsMap[name] = true;
+			state.fileTabs.push(name);
+		}
+	},
+
+	selectTab(state, name) {
+		state.selectedTab = name;
+	},
+
+	closeTab(state, name) {
+		const index = state.fileTabs.indexOf(name);
+		if (index > -1) {
+			state.fileTabs.splice(index, 1);
+			Vue.delete(state.fileTabsMap, name);
+		}
 	},
 
 	getSettings(state, res) {

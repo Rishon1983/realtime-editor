@@ -2,19 +2,19 @@
 	<div class="file-editor-menu-component">
 		<div class="files-list">
 			<div class="one-file-container" v-for="(name, index) in files" :key="index">
-				<div class="name" :title="name">{{ name }}</div>
+				<div @click="openTabAction(name)" class="name" :title="name">{{ name }}</div>
 				<img class="delete" alt="delete-icon" src="@/assets/close-icon.svg">
 			</div>
 		</div>
 		<div class="add-new-file">
-			<img class="add-file" alt="plus-icon" src="@/assets/plus-icon.svg">
+			<img class="plus-icon" alt="plus-icon" src="@/assets/plus-icon.svg">
 			<div class="text">Add new file</div>
 		</div>
 	</div>
 </template>
 
 <script>
-import {mapState} from 'vuex';
+import {mapState, mapActions} from 'vuex';
 
 export default {
 	name: "FileEditorMenuComponent",
@@ -27,7 +27,11 @@ export default {
 			files: state => state.files.fileNames
 		})
 	},
-	methods: {},
+	methods: {
+		...mapActions('files', [
+			'openTabAction'
+		]),
+	},
 	created() {
 	}
 }
@@ -106,6 +110,10 @@ $menu_active: #848484;
 		}
 
 		&:hover {
+			.plus-icon {
+				transform: scale(1.1);
+			}
+
 			.text {
 				text-decoration: underline;
 			}

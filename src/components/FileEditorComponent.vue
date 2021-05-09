@@ -42,6 +42,7 @@ $border: #c9c9c9;
 	.file-editor-body-with-tabs {
 		display: flex;
 		flex-direction: column;
+		width: 75%;
 	}
 }
 </style>
