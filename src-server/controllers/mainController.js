@@ -1,17 +1,9 @@
-import {getFilesData} from '../models/files.js'
+import {getFileNames} from '../models/files.js'
 
 const getFiles = async (req, res) => {
 	const data = req.body;
 
-	const filesData = await getFilesData(data);
-
-	await res.json({
-		ok: true,
-		result: {
-			filesData
-		},
-		errMsg: ''
-	});
+	res.json(getFileNames(data));
 }
 
 export default {

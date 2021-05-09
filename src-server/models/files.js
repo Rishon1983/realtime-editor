@@ -1,10 +1,10 @@
+import fs from 'fs';
 
-const getFilesData = (data) => {
-	return {
-		fileId: 'fileName'
-	}
+const filesFolder = './edit-files/';
+const getFileNames = () => {
+	return fs.readdirSync(filesFolder) || [];
 }
 
 export {
-	getFilesData
+	getFileNames
 }
