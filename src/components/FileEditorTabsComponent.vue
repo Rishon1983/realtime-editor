@@ -1,6 +1,7 @@
 <template>
 	<div class="file-editor-tabs-component">
-		<div class="one-tab-container" v-for="(name, index) in tabs" :key="index" :class="{selected: name === selectedTab}">
+		<div class="one-tab-container" v-for="(name, index) in tabs" :key="index"
+			:class="{selected: name === selectedTab}">
 			<div @click="selectTabAction(name)" class="name" :title="name">{{ name }}</div>
 			<img @click.stop="closeTabAction(name)" class="delete" alt="delete-icon" src="@/assets/close-icon.svg">
 		</div>
@@ -34,7 +35,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$border: #c9c9c9;
+@import './src/scss/const';
+
 .file-editor-tabs-component {
 	width: 100%;
 	height: 50px;
@@ -64,8 +66,12 @@ $border: #c9c9c9;
 			}
 		}
 
-		&.selected{
+		&.selected {
 			border-bottom: 1px solid #ffffff;
+
+			.name {
+				text-shadow: 2px 2px $border;
+			}
 		}
 	}
 }

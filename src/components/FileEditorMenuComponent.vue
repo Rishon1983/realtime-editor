@@ -3,12 +3,13 @@
 		<div class="files-list">
 			<div class="one-file-container" v-for="(name, index) in files" :key="index">
 				<div @click="openTabAction(name)" class="name" :title="name">{{ name }}</div>
-				<img class="delete" alt="delete-icon" src="@/assets/close-icon.svg">
+				<img @click="fileAction({name, action: 'delete'})" class="delete" alt="delete-icon"
+					src="@/assets/close-icon.svg">
 			</div>
 		</div>
 		<div class="add-new-file">
-			<img class="plus-icon" alt="plus-icon" src="@/assets/plus-icon.svg">
-			<div class="text">Add new file</div>
+			<img @click="addNewFile" class="plus-icon" alt="plus-icon" src="@/assets/plus-icon.svg">
+			<input placeholder="add new file" v-model="newFileName">
 		</div>
 	</div>
 </template>
@@ -20,17 +21,46 @@ export default {
 	name: "FileEditorMenuComponent",
 	props: {},
 	data() {
-		return {}
+		return {
+			newFileName: ''
+		}
 	},
 	computed: {
 		...mapState({
-			files: state => state.files.fileNames
+			files: state => state.files.fileNames,
+			socket: state => state.files.socket,
 		})
 	},
 	methods: {
 		...mapActions('files', [
-			'openTabAction'
+			'openTabAction',
+			'fileAction'
 		]),
+		addNewFile() {
+			if (this.newFileName === '') return;
+
+			let isFileExist = false;
+			for (const fileIndex of this.files) {
+				const fileName = this.files[fileIndex];
+				if (fileName === this.newFileName) {
+					isFileExist = true;
+					break;
+				}
+			}
+
+			if (!isFileExist) {
+				this.fileAction({name: this.newFileName + '.txt', action: 'create'});
+				this.newFileName = '';
+
+				/*
+				* socket
+				* */
+				if (!this.socket.connected) {
+					this.socket.connect();
+				}
+				this.socket.emit('add file', this.newFileName + '.txt');
+			}
+		}
 	},
 	created() {
 	}
@@ -38,9 +68,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$border: #c9c9c9;
-$gray_light: #ebebeb;
-$menu_active: #848484;
+@import './src/scss/const';
+
 .file-editor-menu-component {
 	position: relative;
 	width: 25%;
@@ -91,9 +120,9 @@ $menu_active: #848484;
 		left: 0;
 		display: flex;
 		justify-content: center;
+		align-items: center;
 		width: 100%;
 		padding: 15px;
-		cursor: pointer;
 		box-sizing: border-box;
 		box-shadow: 0 0 13px -2px rgba(0, 0, 0, 0.4);
 		-webkit-box-shadow: 0 0 13px -2px rgba(0, 0, 0, 0.4);
@@ -102,21 +131,22 @@ $menu_active: #848484;
 		.plus-icon {
 			height: 16px;
 			width: 16px;
-		}
+			border: 1px solid $border;
+			padding: 5px 15px;
+			cursor: pointer;
 
-		.text {
-			margin-inline-start: 5px;
-			font-weight: bold;
-		}
-
-		&:hover {
-			.plus-icon {
+			&:hover {
 				transform: scale(1.1);
 			}
+		}
 
-			.text {
-				text-decoration: underline;
-			}
+		input {
+			height: 24px;
+			margin: 0 10px;
+			padding-inline-start: 10px;
+			border: 1px solid $border;
+			-webkit-appearance: none;
+			outline: none;
 		}
 	}
 }

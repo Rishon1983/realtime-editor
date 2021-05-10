@@ -31,16 +31,7 @@ body {
 	padding: 0;
 }
 
-/*
-colors
-*/
-$blue: #2c3e50;
-$menu_background: #ebebeb;
-$header_background: #c9c9c9;
-$menu_active: #848484;
-$hover_menu: #d9d9d9;
-$border: #c9c9c9;
-$gray_light: #ebebeb;
+@import './src/scss/const';
 
 #app {
 	font-family: 'Avenir', Helvetica, Arial, sans-serif;

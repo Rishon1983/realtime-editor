@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import axios from 'axios';
 import initRoutes from "./routes/init.js";
+import {initSocket} from './socketIO.js';
 
 const app = express();
 const __dirname = path.resolve();
@@ -38,6 +39,9 @@ app.get('/*', function (req, res) {
 	res.sendfile('index.html', {root: publicDir});
 });
 
-app.listen(80, () => {
+const server = app.listen(80, () => {
 	console.log('Main Server started ');
+
+	//socket
+	initSocket(server);
 });

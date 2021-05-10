@@ -11,6 +11,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import './src/scss/const';
+
 .file-editor-body-component {
 	width: 75%;
 }

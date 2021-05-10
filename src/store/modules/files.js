@@ -5,7 +5,8 @@ const state = {
 	fileNames: [],
 	fileTabs: [],
 	fileTabsMap: {},
-	selectedTab: ''
+	selectedTab: '',
+	socket: null,
 };
 
 // getters are functions.
@@ -31,6 +32,12 @@ const actions = {
 
 	closeTabAction({commit}, name) {
 		commit('closeTab', name);
+	},
+
+	fileAction({commit}, data) {
+		axios.post('http://localhost:80/api/v1/fileAction', data).then(res => {
+			commit(data.action + 'File', res.data);
+		})
 	},
 
 	settingsAction({commit}, data) {
@@ -75,6 +82,28 @@ const mutations = {
 		if (index > -1) {
 			state.fileTabs.splice(index, 1);
 			Vue.delete(state.fileTabsMap, name);
+		}
+	},
+
+	deleteFile(state, res) {
+		if (res.ok) {
+			const name = res.result;
+			const fileNameIndex = state.fileNames.indexOf(name);
+			if (fileNameIndex > -1) {
+				state.fileNames.splice(fileNameIndex, 1);
+			}
+
+			const fileTabsIndex = state.fileTabs.indexOf(name);
+			if (fileTabsIndex > -1) {
+				state.fileTabs.splice(fileTabsIndex, 1);
+				Vue.delete(state.fileTabsMap, name);
+			}
+		}
+	},
+
+	createFile(state, res) {
+		if (res.ok) {
+			state.fileNames.push(res.result);
 		}
 	},
 
