@@ -2,7 +2,9 @@
 	<div id="app">
 		<div class="header">
 			<div class="logo"></div>
-			<div class="header-text">GorAlex</div>
+			<div class="header-text">
+				<img class="logo" alt="logo" src="@/assets/logo-black.svg">
+			</div>
 		</div>
 		<div class="menu">
 			<!-- use router-link component for navigation. -->
@@ -53,6 +55,10 @@ body {
 			font-size: 40px;
 			font-style: italic;
 			margin: 0 35px;
+
+			.logo {
+				height: 41px;
+			}
 		}
 	}
 

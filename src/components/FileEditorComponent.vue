@@ -3,7 +3,7 @@
 		<FileEditorMenuComponent></FileEditorMenuComponent>
 		<div class="file-editor-body-with-tabs">
 			<FileEditorTabsComponent></FileEditorTabsComponent>
-			<FileEditorBodyComponent></FileEditorBodyComponent>
+			<FileEditorBodyComponent v-if="selectedTab !== ''"></FileEditorBodyComponent>
 		</div>
 
 	</div>
@@ -11,7 +11,7 @@
 
 <script>
 import io from 'socket.io-client';
-import {mapState} from 'vuex';
+import {mapActions, mapState} from 'vuex';
 import FileEditorMenuComponent from "@/components/FileEditorMenuComponent";
 import FileEditorTabsComponent from "@/components/FileEditorTabsComponent";
 import FileEditorBodyComponent from "@/components/FileEditorBodyComponent";
@@ -25,57 +25,59 @@ export default {
 	},
 	data() {
 		return {
-			socket: null
+			socket: null,
 		}
 	},
 	created() {
 		this.socketOn();
-		this.$store.dispatch('files/getFileNamesAction');
+		if (!this.socket.connected) {
+			this.socket.connect();
+		}
+		this.socket.emit('get files');
+	},
+	beforeDestroy() {
+		this.socket.disconnect();
+		this.stateByDefault();
 	},
 	computed: {
 		...mapState({
-			socket: state => state.files.socket,
+			selectedTab: state => state.files.selectedTab
 		})
 	},
 	methods: {
+		...mapActions('files', [
+			'getFileNamesAction',
+			'addFileAction',
+			'deleteFileAction',
+			'editFileAction',
+			'updateEditFileBodyAction',
+			'stateByDefault'
+		]),
 		socketOn() {
 			this.socket = io(document.location.protocol + '//' + document.location.hostname);
+
 			this.socket.on('connect', () => {
-			});
-			this.socket.on('add file', (data) => {
-				console.log(data);
+				console.log('connected');
 			});
 
+			this.socket.on('get files', (res) => {
+				this.getFileNamesAction(res.data);
+			});
 
-			this.socket.on('login', (data) => {
-				this.logged = true;
-				this.userName = data.userName;
-				this.users = data.users;
+			this.socket.on('edit file', (res) => {
+				this.editFileAction(res);
 			});
-			this.socket.on('user-joined', (data) => {
-				this.users = data.users;
-				this.messages.push({
-					userName: data.userName,
-					type: data.type,
-					message: 'joined to chat!!!'
-				})
+
+			this.socket.on('read file', (res) => {
+				this.updateEditFileBodyAction(res);
 			});
-			this.socket.on('new message', (data) => {
-				this.messages.push(data);
+
+			this.socket.on('add file', (res) => {
+				this.addFileAction(res.data);
 			});
-			this.socket.on('user-left', (data) => {
-				this.users = data.users;
-				this.messages.push({
-					userName: data.userName,
-					type: data.type,
-					message: 'leave chat!!!'
-				})
-			});
-			this.socket.on('typing', (data) => {
-				this.users = data.users;
-			});
-			this.socket.on('stop-typing', (data) => {
-				this.users = data.users;
+
+			this.socket.on('delete file', (res) => {
+				this.deleteFileAction(res.data);
 			});
 		},
 	}

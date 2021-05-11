@@ -1,8 +1,8 @@
 <template>
 	<div class="home-component">
 		<div class="text">
-			Welcome!
-			This is Collaborate Text Editor.
+			<p>Welcome!</p>
+			<p>This is Collaborate Text Editor.</p>
 			The users browse to a web site (no need for login) and a text editor app will open, multiple users
 			can open this app and edit the same files, the files are saved automatically and will be available
 			when opening the app next time or on a different device.
@@ -26,10 +26,15 @@ export default {
 @import './src/scss/const';
 
 .home-component {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 50px;
+	box-sizing: border-box;
+
 	.text {
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		width: 55%;
 	}
 }
 </style>

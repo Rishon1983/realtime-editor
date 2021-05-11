@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import axios from 'axios';
-import initRoutes from "./routes/init.js";
 import {initSocket} from './socketIO.js';
 
 const app = express();
@@ -33,10 +32,8 @@ app.use((req, res, next) => {
 	next();
 });
 
-initRoutes(app);
-
 app.get('/*', function (req, res) {
-	res.sendfile('index.html', {root: publicDir});
+	res.sendFile('index.html', {root: publicDir});
 });
 
 const server = app.listen(80, () => {

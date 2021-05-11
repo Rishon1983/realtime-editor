@@ -1,15 +1,15 @@
 import fs from 'fs';
 
-const filesFolder = './edit-files/';
+const filesFolder = './files-data/';
 const getFileNames = () => {
 	return fs.readdirSync(filesFolder) || [];
 }
 
-const deleteFile = (name) => {
+const readFile = (name) => {
 
 	try {
-		fs.unlinkSync(filesFolder + name);
-		return 'successfully deleted file: ' + name;
+		return fs.readFileSync(filesFolder + name, 'utf8');
+
 	} catch (err) {
 		// handle the error
 		console.error(err.message);
@@ -17,11 +17,23 @@ const deleteFile = (name) => {
 	}
 }
 
-const createFile = (name) => {
+const deleteFile = (name) => {
 
 	try {
-		fs.writeFileSync(filesFolder + name, '');
-		return 'successfully created new file: ' + name;
+		fs.unlinkSync(filesFolder + name);
+		return name;
+	} catch (err) {
+		// handle the error
+		console.error(err.message);
+		return null;
+	}
+}
+
+const createFile = (name, data = '') => {
+
+	try {
+		fs.writeFileSync(filesFolder + name, data);
+		return name;
 	} catch (err) {
 		// handle the error
 		console.error(err.message);
@@ -32,5 +44,6 @@ const createFile = (name) => {
 export {
 	getFileNames,
 	deleteFile,
-	createFile
+	createFile,
+	readFile
 }

@@ -1,12 +1,11 @@
 import Vue from 'vue';
-import axios from "axios";
 
 const state = {
 	fileNames: [],
 	fileTabs: [],
 	fileTabsMap: {},
 	selectedTab: '',
-	socket: null,
+	editFileBody: ''
 };
 
 // getters are functions.
@@ -16,10 +15,20 @@ const getters = {};
 // asynchronous operations.
 const actions = {
 
-	getFileNamesAction({commit}) {
-		axios.post('http://localhost:80/api/v1/getFiles').then(res => {
-			commit('getFileNames', res.data);
-		})
+	getFileNamesAction({commit}, data) {
+		commit('getFileNames', data);
+	},
+
+	addFileAction({commit}, data) {
+		commit('addFile', data);
+	},
+
+	deleteFileAction({commit}, data) {
+		commit('deleteFile', data);
+	},
+
+	editFileAction({commit}, data) {
+		commit('editFile', data);
 	},
 
 	openTabAction({commit}, name) {
@@ -34,25 +43,14 @@ const actions = {
 		commit('closeTab', name);
 	},
 
-	fileAction({commit}, data) {
-		axios.post('http://localhost:80/api/v1/fileAction', data).then(res => {
-			commit(data.action + 'File', res.data);
-		})
+	updateEditFileBodyAction({commit}, data) {
+		commit('updateEditFileBody', data);
 	},
 
-	settingsAction({commit}, data) {
-
-		data.userId = localStorage.getItem('userId');
-		axios.defaults.headers.common['Authorization'] = `Bearer ` + localStorage.getItem('token');
-		axios.post('http://localhost:80/api/v1/cymulateSettings', data).then(res => {
-			commit(data.action + 'Settings', res.data.result);
-		})
+	stateByDefault({commit}) {
+		commit('stateByDefault');
 	},
-	loginClient({commit}, data) {
-		axios.post('http://localhost:80/api/v1/cymulateLogin', data).then(res => {
-			commit('login', res.data.result);
-		})
-	}
+
 };
 // mutations are operations that actually mutate the state.
 // each mutation handler gets the entire state tree as the
@@ -64,10 +62,34 @@ const mutations = {
 		state.fileNames = res;
 	},
 
+	addFile(state, res) {
+		state.fileNames.push(res);
+	},
+
+	deleteFile(state, res) {
+		const name = res;
+		const fileNameIndex = state.fileNames.indexOf(name);
+		if (fileNameIndex > -1) {
+			state.fileNames.splice(fileNameIndex, 1);
+		}
+
+		const fileTabsIndex = state.fileTabs.indexOf(name);
+		if (fileTabsIndex > -1) {
+			state.fileTabs.splice(fileTabsIndex, 1);
+			Vue.delete(state.fileTabsMap, name);
+		}
+		state.selectedTab = '';
+	},
+
+	editFile(state, res) {
+		if (res.fileName === state.selectedTab) {
+			state.editFileBody = res.data;
+		}
+
+	},
+
 	openTab(state, name) {
-		if (state.fileTabsMap[name]) {
-			console.log(name);
-		} else {
+		if (!state.fileTabsMap[name]) {
 			state.fileTabsMap[name] = true;
 			state.fileTabs.push(name);
 		}
@@ -83,60 +105,22 @@ const mutations = {
 			state.fileTabs.splice(index, 1);
 			Vue.delete(state.fileTabsMap, name);
 		}
+		state.selectedTab = '';
 	},
 
-	deleteFile(state, res) {
-		if (res.ok) {
-			const name = res.result;
-			const fileNameIndex = state.fileNames.indexOf(name);
-			if (fileNameIndex > -1) {
-				state.fileNames.splice(fileNameIndex, 1);
-			}
-
-			const fileTabsIndex = state.fileTabs.indexOf(name);
-			if (fileTabsIndex > -1) {
-				state.fileTabs.splice(fileTabsIndex, 1);
-				Vue.delete(state.fileTabsMap, name);
-			}
+	updateEditFileBody(state, data) {
+		if (data.fileName === state.selectedTab) {
+			state.editFileBody = data.value;
 		}
 	},
 
-	createFile(state, res) {
-		if (res.ok) {
-			state.fileNames.push(res.result);
-		}
+	stateByDefault(state) {
+		state.fileNames = [];
+		state.fileTabs = [];
+		state.fileTabsMap = {};
+		state.selectedTab = '';
+		state.editFileBody = '';
 	},
-
-	getSettings(state, res) {
-		state.cymulateSettings = res.settingsArray;
-		state.cymulateSettingsHeaderAction = 'All Settings';
-	},
-	createSettings(state, res) {
-		state.cymulateSettings = res.settingsArray;
-		state.cymulateSettingsHeaderAction = 'Created Settings';
-	},
-	updateSettings(state, res) {
-		state.cymulateSettings = res.settingsArray;
-		state.cymulateSettingsHeaderAction = 'Updated Settings';
-		//if we want all updated list
-		// state.cymulateSettings.forEach(settings => {
-		//     if (settings._id === res.settingsArray._id) {
-		//         settings.key = res.settingsArray.key;
-		//     }
-		// })
-	},
-	deleteSettings(state, res) {
-		state.cymulateSettings = res.settingsArray;
-		state.cymulateSettingsHeaderAction = 'Deleted Settings';
-	},
-	login(state, res) {
-		if (res.login) {
-			state.userName = res.login.username;
-			state.login = true;
-			localStorage.setItem('token', res.token)
-			localStorage.setItem('userId', res.login._id)
-		}
-	}
 };
 
 // A Vuex instance is created by combining the state, mutations, actions,

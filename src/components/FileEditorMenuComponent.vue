@@ -3,7 +3,7 @@
 		<div class="files-list">
 			<div class="one-file-container" v-for="(name, index) in files" :key="index">
 				<div @click="openTabAction(name)" class="name" :title="name">{{ name }}</div>
-				<img @click="fileAction({name, action: 'delete'})" class="delete" alt="delete-icon"
+				<img @click="removeFile(name)" class="delete" alt="delete-icon"
 					src="@/assets/close-icon.svg">
 			</div>
 		</div>
@@ -27,39 +27,45 @@ export default {
 	},
 	computed: {
 		...mapState({
-			files: state => state.files.fileNames,
-			socket: state => state.files.socket,
+			files: state => state.files.fileNames
 		})
 	},
 	methods: {
 		...mapActions('files', [
 			'openTabAction',
-			'fileAction'
+			'addFileAction',
+			'deleteFileAction'
 		]),
 		addNewFile() {
 			if (this.newFileName === '') return;
 
+			const name = this.newFileName + '.txt';
+
 			let isFileExist = false;
-			for (const fileIndex of this.files) {
-				const fileName = this.files[fileIndex];
-				if (fileName === this.newFileName) {
+			for (const fileName of this.files) {
+				if (fileName === name) {
 					isFileExist = true;
 					break;
 				}
 			}
 
 			if (!isFileExist) {
-				this.fileAction({name: this.newFileName + '.txt', action: 'create'});
-				this.newFileName = '';
+				this.addFileAction(name);
 
 				/*
 				* socket
 				* */
-				if (!this.socket.connected) {
-					this.socket.connect();
-				}
-				this.socket.emit('add file', this.newFileName + '.txt');
+				this.$parent.socket.emit('add file', name);
+				this.newFileName = '';
 			}
+		},
+
+		removeFile(name) {
+			this.deleteFileAction(name);
+			/*
+			* socket
+			* */
+			this.$parent.socket.emit('delete file', name);
 		}
 	},
 	created() {
@@ -80,6 +86,9 @@ export default {
 
 	.files-list {
 		width: 100%;
+		height: calc(100% - 60px);
+		overflow-x: hidden;
+		overflow-y: auto;
 
 
 		.one-file-container {
@@ -93,6 +102,10 @@ export default {
 				justify-content: flex-start;
 				padding: 10px;
 				cursor: pointer;
+
+				&:hover {
+					text-decoration: underline;
+				}
 			}
 
 			.delete {
@@ -108,7 +121,7 @@ export default {
 			}
 
 			&:nth-child(even) {
-				background-color: $gray_light;
+				background-color: $zebra;
 			}
 		}
 
@@ -142,7 +155,8 @@ export default {
 
 		input {
 			height: 24px;
-			margin: 0 10px;
+			max-width: calc(100% - 106px);
+			margin-inline-start: 10px;
 			padding-inline-start: 10px;
 			border: 1px solid $border;
 			-webkit-appearance: none;

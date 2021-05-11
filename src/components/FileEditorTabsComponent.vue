@@ -2,7 +2,7 @@
 	<div class="file-editor-tabs-component">
 		<div class="one-tab-container" v-for="(name, index) in tabs" :key="index"
 			:class="{selected: name === selectedTab}">
-			<div @click="selectTabAction(name)" class="name" :title="name">{{ name }}</div>
+			<div @click="selectTab(name)" class="name" :title="name">{{ name }}</div>
 			<img @click.stop="closeTabAction(name)" class="delete" alt="delete-icon" src="@/assets/close-icon.svg">
 		</div>
 	</div>
@@ -28,6 +28,13 @@ export default {
 			'selectTabAction',
 			'closeTabAction'
 		]),
+		selectTab(name) {
+			this.selectTabAction(name);
+			/*
+			* socket
+			* */
+			this.$parent.socket.emit('read file', name);
+		}
 	},
 	created() {
 	}
@@ -42,6 +49,7 @@ export default {
 	height: 50px;
 	display: flex;
 	border: 1px solid $border;
+	box-sizing: border-box;
 
 	.one-tab-container {
 		position: relative;
@@ -50,6 +58,7 @@ export default {
 		align-items: center;
 		cursor: pointer;
 		border-inline-end: 1px solid $border;
+		background-color: $zebra;
 
 		.name {
 			padding: 16px 25px 16px 16px;
@@ -68,6 +77,7 @@ export default {
 
 		&.selected {
 			border-bottom: 1px solid #ffffff;
+			background-color: #ffffff;
 
 			.name {
 				text-shadow: 2px 2px $border;
