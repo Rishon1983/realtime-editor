@@ -15,9 +15,15 @@ npm run serve
 npm run build
 ```
 
-### Lints and fixes files
+### Run server
 ```
-npm run lint
+cd projectPATH/src-server
+node server.js
+```
+
+### Enter to localhost (port 80)
+```
+http://localhost/
 ```
 
 ### Customize configuration
