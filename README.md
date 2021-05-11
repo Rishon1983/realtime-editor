@@ -15,9 +15,10 @@ npm run serve
 npm run build
 ```
 
-### Lints and fixes files
+### Run server
 ```
-npm run lint
+cd projectPATH/src-server
+node server.js
 ```
 
 ### Customize configuration
