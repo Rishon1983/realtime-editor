@@ -65,6 +65,7 @@ export default {
 			});
 
 			this.socket.on('edit file', (res) => {
+				console.log('editing file');
 				this.editFileAction(res);
 			});
 

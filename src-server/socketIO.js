@@ -21,6 +21,7 @@ const initSocket = (server) => {
 		// when the client emits 'get files', this listens and executes
 		socket.on('read file', (data) => {
 
+			socket.join(data);
 			// we tell the client to execute 'get files'
 			socket.emit('read file', {
 				type: 'read file',
@@ -56,11 +57,15 @@ const initSocket = (server) => {
 			createFile(data.fileName, data.value);
 
 			// we tell the client to execute 'edit file'
-			socket.broadcast.emit('edit file', {
+			socket.to(data.fileName).broadcast.emit('edit file', {
 				type: 'edit file',
 				fileName: data.fileName,
 				data: data.value
 			});
+		});
+
+		socket.on('remove from room', (data) => {
+			socket.leave(data)
 		});
 
 		// when the user disconnects.. perform this

@@ -3,7 +3,7 @@
 		<div class="one-tab-container" v-for="(name, index) in tabs" :key="index"
 			:class="{selected: name === selectedTab}">
 			<div @click="selectTab(name)" class="name" :title="name">{{ name }}</div>
-			<img @click.stop="closeTabAction(name)" class="delete" alt="delete-icon" src="@/assets/close-icon.svg">
+			<img @click.stop="closeTab(name)" class="delete" alt="delete-icon" src="@/assets/close-icon.svg">
 		</div>
 	</div>
 </template>
@@ -34,6 +34,10 @@ export default {
 			* socket
 			* */
 			this.$parent.socket.emit('read file', name);
+		},
+		closeTab(name){
+			this.$parent.socket.emit('remove from room', name);
+			this.closeTabAction(name);
 		}
 	},
 	created() {

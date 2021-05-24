@@ -52,6 +52,17 @@ const actions = {
 	},
 
 };
+
+//function for use in mutations
+const deleteFileNameFromFileTabs = (state, name) => {
+	const fileTabsIndex = state.fileTabs.indexOf(name);
+	if (fileTabsIndex > -1) {
+		state.fileTabs.splice(fileTabsIndex, 1);
+		Vue.delete(state.fileTabsMap, name);
+	}
+	state.selectedTab = '';
+}
+
 // mutations are operations that actually mutate the state.
 // each mutation handler gets the entire state tree as the
 // first argument, followed by additional payload arguments.
@@ -73,12 +84,7 @@ const mutations = {
 			state.fileNames.splice(fileNameIndex, 1);
 		}
 
-		const fileTabsIndex = state.fileTabs.indexOf(name);
-		if (fileTabsIndex > -1) {
-			state.fileTabs.splice(fileTabsIndex, 1);
-			Vue.delete(state.fileTabsMap, name);
-		}
-		state.selectedTab = '';
+		deleteFileNameFromFileTabs(state, name);
 	},
 
 	editFile(state, res) {
@@ -100,12 +106,7 @@ const mutations = {
 	},
 
 	closeTab(state, name) {
-		const index = state.fileTabs.indexOf(name);
-		if (index > -1) {
-			state.fileTabs.splice(index, 1);
-			Vue.delete(state.fileTabsMap, name);
-		}
-		state.selectedTab = '';
+		deleteFileNameFromFileTabs(state, name);
 	},
 
 	updateEditFileBody(state, data) {
